@@ -47,34 +47,34 @@ func NewProviderEpicGames(
 	}
 }
 
-func (d *ProviderEpicGames) Config() *Configuration {
-	return d.config
+func (e *ProviderEpicGames) Config() *Configuration {
+	return e.config
 }
 
-func (d *ProviderEpicGames) oauth2(ctx context.Context) *oauth2.Config {
+func (e *ProviderEpicGames) oauth2(ctx context.Context) *oauth2.Config {
 	return &oauth2.Config{
-		ClientID:     d.config.ClientID,
-		ClientSecret: d.config.ClientSecret,
+		ClientID:     e.config.ClientID,
+		ClientSecret: e.config.ClientSecret,
 		Endpoint: oauth2.Endpoint{
 			AuthURL:   "https://www.epicgames.com/id/authorize",
 			TokenURL:  "https://api.epicgames.dev/epic/oauth/v1/token",
 			AuthStyle: oauth2.AuthStyleInHeader,
 		},
-		RedirectURL: d.config.Redir(d.reg.Config().OIDCRedirectURIBase(ctx)),
-		Scopes:      d.config.Scope,
+		RedirectURL: e.config.Redir(e.reg.Config().OIDCRedirectURIBase(ctx)),
+		Scopes:      e.config.Scope,
 	}
 }
 
-func (d *ProviderEpicGames) OAuth2(ctx context.Context) (*oauth2.Config, error) {
-	d.reg.Logger().WithField("provider", "epic-games").Trace("ProviderCreating new oauth2 configuration in OAuth2 method.")
-	return d.oauth2(ctx), nil
+func (e *ProviderEpicGames) OAuth2(ctx context.Context) (*oauth2.Config, error) {
+	e.reg.Logger().WithField("provider", "epic-games").Trace("ProviderCreating new oauth2 configuration in OAuth2 method.")
+	return e.oauth2(ctx), nil
 }
 
-func (d *ProviderEpicGames) Claims(ctx context.Context, exchange *oauth2.Token, query url.Values) (*Claims, error) {
+func (e *ProviderEpicGames) Claims(ctx context.Context, exchange *oauth2.Token, query url.Values) (*Claims, error) {
 	identityUrl := "https://api.epicgames.dev/epic/oauth/v1/userInfo"
 
-	o := d.oauth2(ctx)
-	ctx, client := httpx.SetOAuth2(ctx, d.reg.HTTPClient(ctx), o, exchange)
+	o := e.oauth2(ctx)
+	ctx, client := httpx.SetOAuth2(ctx, e.reg.HTTPClient(ctx), o, exchange)
 
 	req, err := retryablehttp.NewRequest("GET", identityUrl, nil)
 	if err != nil {
@@ -89,7 +89,7 @@ func (d *ProviderEpicGames) Claims(ctx context.Context, exchange *oauth2.Token, 
 	}
 	defer res.Body.Close()
 
-	if err := logUpstreamError(d.reg.Logger(), res); err != nil {
+	if err := logUpstreamError(e.reg.Logger(), res); err != nil {
 		return nil, err
 	}
 
@@ -113,6 +113,6 @@ func (d *ProviderEpicGames) Claims(ctx context.Context, exchange *oauth2.Token, 
 	return claims, nil
 }
 
-func (g *ProviderEpicGames) AuthCodeURLOptions(r ider) []oauth2.AuthCodeOption {
+func (e *ProviderEpicGames) AuthCodeURLOptions(r ider) []oauth2.AuthCodeOption {
 	return []oauth2.AuthCodeOption{}
 }
