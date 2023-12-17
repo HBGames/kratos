@@ -74,7 +74,7 @@ func (d *ProviderEpicGames) Claims(ctx context.Context, exchange *oauth2.Token, 
 	identityUrl := "https://api.epicgames.dev/epic/oauth/v1/userInfo"
 
 	o := d.oauth2(ctx)
-	client := d.reg.HTTPClient(ctx, httpx.ResilientClientWithClient(o.Client(ctx, exchange)))
+	ctx, client := httpx.SetOAuth2(ctx, d.reg.HTTPClient(ctx), o, exchange)
 
 	req, err := retryablehttp.NewRequest("GET", identityUrl, nil)
 	if err != nil {
